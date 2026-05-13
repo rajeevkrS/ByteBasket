@@ -7,15 +7,16 @@ import { ok } from "./utils/envelop";
 import { notFound } from "./middleware/notFound";
 import { errorHandler } from "./middleware/errorHandler";
 
+// Creating async startup wrapper
 async function mainEntryFunction() {
   await connectDB();
 
   const app = express();
 
   const corsOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000")
-    .split(",")
-    .map((origin) => origin.trim())
-    .filter(Boolean);
+    .split(",") // Converts: "a,b,c" -> ["a", "b", "c"]
+    .map((origin) => origin.trim()) // Removes spaces
+    .filter(Boolean); // Remove empty values ["", "abc"]->["abc"]
 
   app.use(
     cors({
@@ -25,14 +26,14 @@ async function mainEntryFunction() {
   );
 
   app.use(express.json());
-  app.use(morgan("dev"));
+  app.use(morgan("dev")); // Logs request details in terminal
 
   app.get("/health", (_req, res) => {
     res.status(200).json(ok({ message: "Server is healthy/in running" }));
   });
 
-  app.use(notFound);
-  app.use(errorHandler);
+  app.use(notFound); // Handles unmatched routes
+  app.use(errorHandler); // Handles all backend errors
 
   const port = Number(process.env.PORT || 5000);
 
