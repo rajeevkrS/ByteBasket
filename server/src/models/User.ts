@@ -30,7 +30,7 @@ const addressSchema = new mongoose.Schema(
     },
 
     isDefault: {
-      type: true,
+      type: Boolean,
       default: false,
     },
   },

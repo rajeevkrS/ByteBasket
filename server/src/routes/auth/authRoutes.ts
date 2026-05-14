@@ -8,7 +8,7 @@ import { ok } from "../../utils/envelop";
 
 export const authRouter = Router();
 
-// Create/update logged-in user in database
+// Router for creating/updating logged-in user in database
 authRouter.post(
   "/sync",
   requireAuth,
@@ -114,6 +114,37 @@ authRouter.post(
           email: newlyCreateDbUser.email,
           name: newlyCreateDbUser.name,
           role: newlyCreateDbUser.role,
+        },
+      }),
+    );
+  }),
+);
+
+// Router to get the current logged-in user info
+authRouter.get(
+  "/get-profile",
+  requireAuth,
+  asyncHandler(async (req, res) => {
+    const { userId } = getAuth(req);
+
+    if (!userId) {
+      throw new AppError(401, "Unauthorized- invalid token!");
+    }
+
+    const dbUser = await User.findOne({ clerkUserId: userId });
+
+    if (!dbUser) {
+      throw new AppError(404, "User not found in DB!");
+    }
+
+    res.status(200).json(
+      ok({
+        user: {
+          id: dbUser._id,
+          clerkUserId: dbUser.clerkUserId,
+          email: dbUser.email,
+          name: dbUser.name,
+          role: dbUser.role,
         },
       }),
     );

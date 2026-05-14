@@ -6,6 +6,8 @@ import morgan from "morgan";
 import { ok } from "./utils/envelop";
 import { notFound } from "./middleware/notFound";
 import { errorHandler } from "./middleware/errorHandler";
+import { clerkMiddleware } from "@clerk/express";
+import { authRouter } from "./routes/auth/authRoutes";
 
 // Creating async startup wrapper
 async function mainEntryFunction() {
@@ -27,10 +29,14 @@ async function mainEntryFunction() {
 
   app.use(express.json());
   app.use(morgan("dev")); // Logs request details in terminal
+  app.use(clerkMiddleware());
 
   app.get("/health", (_req, res) => {
     res.status(200).json(ok({ message: "Server is healthy/in running" }));
   });
+
+  // API endpoints
+  app.use("/auth", authRouter);
 
   app.use(notFound); // Handles unmatched routes
   app.use(errorHandler); // Handles all backend errors
